@@ -3,5 +3,6 @@
 2. Clone this repo
 3. Put data files in a directory called `data/`, the script expects:
     * `path_to_repo/data/images.csv`, `path_to_repo/data/classification.csv`, and the images at `path_to_repo/data/images/*`
-4. Set up a bot password on the wiki at Special:BotPasswords. Make sure it can create pages and have high rate limites
-5. Run the script, entering the bot password credentials when it prompts you
+4. Set up a bot password on the wiki at Special:BotPasswords. Make sure it can create pages and have high rate limits
+5. If running the script on a test wiki, change the URL you're uploading to, make sure the API path is also correct
+6. Run the script, entering the bot password credentials when it prompts you
