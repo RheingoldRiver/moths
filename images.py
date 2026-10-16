@@ -37,9 +37,15 @@ def make_wikitext(row):
     params = []
 
     add(params, "Hodges Number", row["HodgesNumber"])
+    add(params, "Phylogenetic Number", row["PhylogeneticNumber"])
+    add(params, "Primary Image", row["IsPrimary"])
+    add(params, "Genitalia", row["IsGenitalia"])
     add(params, "Coordinates", row["Coordinates"])
+    add(params, "Address", row["Address"])
     add(params, "Live Collection", row["LiveCollection"])
     add(params, "Credit", row["Credit"])
+    add(params, "Date", row["Date"])
+    add(params, "NameType", row["NameType"])
 
     add(
         params,
@@ -50,7 +56,7 @@ def make_wikitext(row):
     add(params, "Reviewed", "Yes")
     add(params, "Approved", "Yes")
 
-    lines = ["{{Image Upload"]
+    lines = ["{{Image"]
 
     for name, value in params:
         lines.append(f"|{name}={value}")
