@@ -1,4 +1,6 @@
 import csv
+from collections import defaultdict
+from decimal import Decimal, InvalidOperation
 from pathlib import Path
 
 from mwcleric import WikiClient
@@ -6,6 +8,7 @@ from mwcleric.auth_credentials import AuthCredentials
 
 
 INPUT_FILE = Path("data/classification.csv")
+MAPPING_FILE = Path("data/mapping.csv")
 
 
 credentials = AuthCredentials(user_file="moths_me")
@@ -13,11 +16,14 @@ credentials = AuthCredentials(user_file="moths_me")
 site = WikiClient(
     url="https://www2.mothphotographersgroup.msstate.edu",
     path="/w/",
-    credentials=credentials
+    credentials=credentials,
 )
 
 
 def add(params, name, value):
+    """
+    Add a template parameter only if it has a non-empty value.
+    """
     if value is None:
         return
 
@@ -25,6 +31,47 @@ def add(params, name, value):
 
     if value:
         params.append((name, value))
+
+
+def numeric_hodges(value):
+    value = str(value).strip()
+
+    if not value:
+        return None
+
+    try:
+        return Decimal(value)
+    except InvalidOperation:
+        return None
+
+
+def mapping_to_template(row):
+    fields = [
+        ("source", "source"),
+        ("type", "type"),
+        # ("species", "species"),
+        ("state", "state"),
+        ("county", "county"),
+        ("lati", "lat"),
+        ("long", "lon"),
+        ("date", "date"),
+    ]
+
+    parts = ["{{Observation"]
+
+    for csv_name, template_name in fields:
+        parts.append(f"|{template_name}={row[csv_name].strip()}")
+
+    parts.append("}}")
+
+    return "".join(parts)
+
+def references(txt):
+    return "".join(
+        f"{{{{Reference|ref={item.strip()}}}}}"
+        for item in txt.split(";")
+        if item.strip()
+    )
 
 
 def row_to_template(row):
@@ -36,23 +83,30 @@ def row_to_template(row):
     add(params, "Original Name", row["Species"])
     add(params, "Common Name", row["CommonName"])
     add(params, "Author", row["SpeciesAuthor"])
-
-    if row["BinomialChange"].strip().lower() == "yes":
-        add(params, "brackets left", "(")
+    add(params, "Binomial Change", row["BinomialChange"])
 
     add(params, "Author Year", row["AuthorYear"])
 
-    if row["BinomialChange"].strip().lower() == "yes":
-        add(params, "brackets right", ")")
-
     add(params, "Parent ID No", row["Parent"])
+
+    add(params, "Synonymy", row["SynonymOf"])
+    add(params, "Phylogenetic Revision", row["PhylogeneticRevision"])
 
     add(params, "Notes", row["Notes"])
     add(params, "Taxonomic Notes", row["TaxonomicNotes"])
     add(params, "Distribution", row["Distribution"])
     add(params, "Description", row["Description"])
     add(params, "Genitalia", row["Genitalia"])
-    add(params, "Reference List", row["ReferenceList"])
+    add(params, "Reference List", references(row["ReferenceList"]))
+
+    hodges = numeric_hodges(row["HodgesNumber"])
+
+    if hodges is not None and hodges in mappings_by_hodges:
+        mapping_text = "".join(
+            mapping_to_template(mapping_row)
+            for mapping_row in mappings_by_hodges[hodges]
+        )
+        add(params, "mapping", mapping_text)
 
     add(params, "Category Name", row["Level"])
 
@@ -61,6 +115,20 @@ def row_to_template(row):
         + "\n".join(f"|{name}={value}" for name, value in params)
         + "\n}}"
     )
+
+
+# Load mapping.csv into memory, indexed by numeric Hodges number.
+mappings_by_hodges = defaultdict(list)
+
+with MAPPING_FILE.open(
+    newline="",
+    encoding="utf-8-sig",
+) as f:
+    for row in csv.DictReader(f):
+        hodges = numeric_hodges(row["hodges"])
+
+        if hodges is not None:
+            mappings_by_hodges[hodges].append(row)
 
 
 with INPUT_FILE.open(
@@ -84,7 +152,7 @@ for row in rows:
 
     page.save(
         page_text,
-        summary="Import classification data"
+        summary="Update from new data"
     )
 
     print(f"Saved {page_title}")
