@@ -67,9 +67,11 @@ def mapping_to_template(row):
     return "".join(parts)
 
 def references(txt):
+    # Entries are separated by ";;;". A single ";" is ordinary text, including
+    # the end of entities like &amp;, so splitting on it breaks references apart.
     return "".join(
         f"{{{{Reference|ref={item.strip()}}}}}"
-        for item in txt.split(";")
+        for item in txt.split(";;;")
         if item.strip()
     )
 
@@ -91,6 +93,10 @@ def row_to_template(row):
 
     add(params, "Synonymy", row["SynonymOf"])
     add(params, "Phylogenetic Revision", row["PhylogeneticRevision"])
+    # Template:ClassificationEntity stores these three under these names.
+    add(params, "synonymID", row["SynonymOf"])
+    add(params, "P Revision", row["PhylogeneticRevision"])
+    add(params, "Category No", row["LevelNumber"])
 
     add(params, "Notes", row["Notes"])
     add(params, "Taxonomic Notes", row["TaxonomicNotes"])
