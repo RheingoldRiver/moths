@@ -91,9 +91,9 @@ def row_to_template(row):
 
     add(params, "Parent ID No", row["Parent"])
 
-    add(params, "Synonymy", row["SynonymOf"])
-    add(params, "Phylogenetic Revision", row["PhylogeneticRevision"])
-    # Template:ClassificationEntity stores these three under these names.
+    # Template:ClassificationEntity stores SynonymOf, PhylogeneticRevision and
+    # LevelNumber from these names. Its Synonymy parameter is the synonymy list
+    # shown on species pages, not this ID.
     add(params, "synonymID", row["SynonymOf"])
     add(params, "P Revision", row["PhylogeneticRevision"])
     add(params, "Category No", row["LevelNumber"])
