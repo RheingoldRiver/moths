@@ -95,7 +95,7 @@ def row_to_template(row):
     # LevelNumber from these names. Its Synonymy parameter is the synonymy list
     # shown on species pages, not this ID.
     add(params, "synonymID", row["SynonymOf"])
-    add(params, "P Revision", row["PhylogeneticRevision"])
+    add(params, "Phylogenetic Revision", row["PhylogeneticRevision"])
     add(params, "Category No", row["LevelNumber"])
 
     add(params, "Notes", row["Notes"])
