@@ -40,6 +40,7 @@ def make_wikitext(row):
     add(params, "Phylogenetic Number", row["PhylogeneticNumber"])
     add(params, "Primary Image", row["IsPrimary"])
     add(params, "Genitalia", row["IsGenitalia"])
+    add(params, "Larva", row["IsLarva"])
     add(params, "Coordinates", row["Coordinates"])
     add(params, "Address", row["Address"])
     add(params, "Live Collection", row["LiveCollection"])
