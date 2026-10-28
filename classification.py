@@ -45,9 +45,10 @@ def numeric_hodges(value):
         return None
 
 
-def mapping_to_template(row):
+def mapping_to_template(row, phylogenetic_number=""):
     fields = [
         ("source", "source"),
+        ("hodges", "hodges"),
         ("type", "type"),
         # ("species", "species"),
         ("state", "state"),
@@ -58,6 +59,8 @@ def mapping_to_template(row):
     ]
 
     parts = ["{{Observation"]
+    if phylogenetic_number:
+        parts.append(f"|phylo={phylogenetic_number.strip()}")
 
     for csv_name, template_name in fields:
         parts.append(f"|{template_name}={row[csv_name].strip()}")
@@ -95,6 +98,7 @@ def row_to_template(row):
     # LevelNumber from these names. Its Synonymy parameter is the synonymy list
     # shown on species pages, not this ID.
     add(params, "synonymID", row["SynonymOf"])
+    add(params, "Synonymy", row.get("Synonymy", ""))
     add(params, "Phylogenetic Revision", row["PhylogeneticRevision"])
     add(params, "Category No", row["LevelNumber"])
 
@@ -109,7 +113,7 @@ def row_to_template(row):
 
     if hodges is not None and hodges in mappings_by_hodges:
         mapping_text = "".join(
-            mapping_to_template(mapping_row)
+            mapping_to_template(mapping_row, row["PhylogeneticNumber"])
             for mapping_row in mappings_by_hodges[hodges]
         )
         add(params, "mapping", mapping_text)

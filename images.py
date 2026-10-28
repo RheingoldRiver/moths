@@ -46,7 +46,8 @@ def make_wikitext(row):
     add(params, "Live Collection", row["LiveCollection"])
     add(params, "Credit", row["Credit"])
     add(params, "Date", row["Date"])
-    add(params, "NameType", row["NameType"])
+    add(params, "Sequence", row.get("Sequence", ""))
+    add(params, "Name Type", row["NameType"])
 
     add(
         params,
