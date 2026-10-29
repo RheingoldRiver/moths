@@ -45,10 +45,9 @@ def numeric_hodges(value):
         return None
 
 
-def mapping_to_template(row, phylogenetic_number=""):
+def mapping_to_template(row):
     fields = [
         ("source", "source"),
-        ("hodges", "hodges"),
         ("type", "type"),
         # ("species", "species"),
         ("state", "state"),
@@ -59,8 +58,6 @@ def mapping_to_template(row, phylogenetic_number=""):
     ]
 
     parts = ["{{Observation"]
-    if phylogenetic_number:
-        parts.append(f"|phylo={phylogenetic_number.strip()}")
 
     for csv_name, template_name in fields:
         parts.append(f"|{template_name}={row[csv_name].strip()}")
@@ -113,7 +110,7 @@ def row_to_template(row):
 
     if hodges is not None and hodges in mappings_by_hodges:
         mapping_text = "".join(
-            mapping_to_template(mapping_row, row["PhylogeneticNumber"])
+            mapping_to_template(mapping_row)
             for mapping_row in mappings_by_hodges[hodges]
         )
         add(params, "mapping", mapping_text)
